@@ -73,25 +73,28 @@ public class practica2 {
             row = 0;
             column = BB.getInitialCarColumn();
         }
-        System.out.println(nmovimientos/10000.0);
-        return utilidad/10000;
+        System.out.println(nmovimientos / 10000.0);
+        return utilidad / 10000;
     }
 
     public static void main(String[] args) {
-        int t = 25;
+        int t = 5;
         double prob = 0.9;
         BlackBoxEnvironment bbe = new BlackBoxEnvironment(t, 2019, prob);
         QLearning ql = new QLearning(bbe, 2019);
-        HashMap<Estado, String> map = ql.algoritmo();
+        //HashMap<Estado, String> map = ql.algoritmo();
 
 //        for (Estado key : map.keySet()) {
 //            String value = map.get(key);
 //            System.out.println("Value = " + value);
 //        }
-
         bbe.printMaze();
-        imprimirPolitica(map, t);
-        System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map));
-        
+        //imprimirPolitica(map, t);
+        //System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map));
+        ValueIteration vi = new ValueIteration(t, 2019, 0.001);
+        HashMap<Estado, Double> utilities = vi.algoritmo();
+        utilities.keySet().stream().map((key) -> utilities.get(key)).forEachOrdered((value) -> {
+            System.out.println("Delta = " + value);
+        });
     }
 }

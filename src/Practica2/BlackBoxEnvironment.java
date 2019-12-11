@@ -8,7 +8,7 @@ public class BlackBoxEnvironment {
 	
 	// problem data
 	private int dimension;
-	private int[][] maze = null;
+	int[][] maze = null;
 	private int initialCarRow=0;
 	private int initialCarColumn=0;
 	
