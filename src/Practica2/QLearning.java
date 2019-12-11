@@ -20,14 +20,13 @@ public class QLearning {
     HashMap<Estado, double[]> QTable = new HashMap<Estado, double[]>();
     BlackBoxEnvironment BB;
     Random r;
-    int nEpisodios = 1000;
+    int nEpisodios = 1000000;
     final double alfa = 0.1;
     final double vInicio = -1.0;
 
     public QLearning(BlackBoxEnvironment b,int seed) {
         this.BB = b;
         r = new Random(seed);
-        
     }
 
     public HashMap<Estado, String> algoritmo() {
@@ -35,10 +34,11 @@ public class QLearning {
         int row = 0;
         int column = BB.getInitialCarColumn();
         int accionActual;
-        
+        int npasos = 0;
             while (!BB.isGoal(row, column)) {
+                npasos++;
                 Estado s = new Estado(row, column);
-                //se coge el movimiento con mayor valor en la QTabla
+                //Se coge el movimiento con mayor valor en la QTabla
                 if (QTable.get(s) != null) {
                     accionActual = getMax(QTable.get(new Estado(row, column)));
                 } else {
@@ -46,7 +46,7 @@ public class QLearning {
                     QTable.put(s, new double[]{vInicio,vInicio,vInicio,vInicio});
                     accionActual = r.nextInt(4);
                 }
-                //se aplica la accion al estado actual
+                //Se aplica la accion al estado actual
                 ArrayList accion = BB.applyAction(row, column, BB.getActions()[accionActual], r);
                 //Almacenamos el proximo estado
                 Estado s2 = new Estado((int) accion.get(0), (int) accion.get(1)); //Siguiente estado
@@ -54,19 +54,17 @@ public class QLearning {
                 double[] sPrime = new double[4];
                 //Guardamos el array con los valores para los movimientos del estado actual
                 System.arraycopy(QTable.get(s), 0, sPrime, 0, 4);
-                //System.out.println("-");
                 //Si el proximo estado es el final aplicamos las formula sumando la recompensa
                 if (BB.isGoal((int) accion.get(0), (int) accion.get(1))) {
-                    sPrime[accionActual] = ((1.0 - alfa) * sPrime[accionActual]) + (alfa * ((double) accion.get(2)));
+                    sPrime[accionActual] = ((1.0 - alfa) * sPrime[accionActual]) + (alfa * (double) accion.get(2));
                     QTable.put(s, sPrime);
-                    //System.out.println("Termina");
                 } else {
                     //Si el estado es nulo, es decir no ha sido visitado lo inicializamos
                     if (QTable.get(s2) == null) {
                         QTable.put(s2, new double[]{vInicio,vInicio,vInicio,vInicio});
                     }
                     //Aplicamos la formula
-                    sPrime[accionActual] = (1.0 - alfa) * sPrime[accionActual] + (alfa * ((double) (accion.get(2)) + QTable.get(s2)[getMax(QTable.get(s))]));
+                    sPrime[accionActual] = ((1.0 - alfa) * sPrime[accionActual]) + (alfa * ((double) accion.get(2) + QTable.get(s2)[getMax(QTable.get(s2))]));
                     QTable.put(s, sPrime);
                 }
                 //Actualizamos fila y columna

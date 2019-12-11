@@ -52,13 +52,15 @@ public class practica2 {
         System.out.println("-");
     }
 
-    public static double calcularPolitica(Random r, BlackBoxEnvironment BB, HashMap<Estado, String> map) {
+    public static double calcularUtilidadMedia(Random r, BlackBoxEnvironment BB, HashMap<Estado, String> map) {
         double utilidad = 0.0;
         int nmovimientos = 0;
         int row = 0;
         int column = BB.getInitialCarColumn();
         Estado s = new Estado(row, column);
+        int npasos = 0;
         for (int i = 0; i < 10000; i++) {
+            npasos = 0;
             while (!BB.isGoal(row, column)) {
                 ArrayList<Integer> accion = BB.applyAction(row, column, map.get(s), r);
                 row = accion.get(0);
@@ -66,16 +68,17 @@ public class practica2 {
                 utilidad += BB.getReward(row, column);
                 s = new Estado(row, column);
                 nmovimientos++;
+                npasos++;
             }
             row = 0;
             column = BB.getInitialCarColumn();
         }
-        System.out.println(nmovimientos/10000);
+        System.out.println(nmovimientos/10000.0);
         return utilidad/10000;
     }
 
     public static void main(String[] args) {
-        int t = 20;
+        int t = 25;
         double prob = 0.9;
         BlackBoxEnvironment bbe = new BlackBoxEnvironment(t, 2019, prob);
         QLearning ql = new QLearning(bbe, 2019);
@@ -88,7 +91,7 @@ public class practica2 {
 
         bbe.printMaze();
         imprimirPolitica(map, t);
-        System.out.println(calcularPolitica(new Random(2019), bbe, map));
+        System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map));
         
     }
 }
