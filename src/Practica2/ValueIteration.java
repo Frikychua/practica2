@@ -6,6 +6,7 @@
 package Practica2;
 
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  *
@@ -18,11 +19,15 @@ public class ValueIteration {
     int n;
     int seed;
     double epsilon;
+    double prob;
+    Random r;
 
-    public ValueIteration(int n, int seed, double epsilon) {
+    public ValueIteration(int n, int seed, double epsilon, double prob) {
         this.n = n;
         this.seed = seed;
         this.epsilon = epsilon;
+        this.prob = prob;
+        r = new Random(2019);
     }
 
     public HashMap<Estado, Double> algoritmo() {
@@ -33,20 +38,23 @@ public class ValueIteration {
         for (int j = 0; j < n; j++) {
             for (int i = 0; i < n; i++) {
                 if (bbe.maze[j][i] != -1) {
-                    utilities.put(new Estado(j, i), 0.0);
+                    if (j == (n - 1)) {
+                        utilities.put(new Estado(j, i), 0.0);
+                    } else {
+                        utilities.put(new Estado(j, i), 0.0);
+                    }
                 }
             }
         }
-
         do {
             delta = 0;
 
             for (int j = 0; j < n; j++) {
                 for (int i = 0; i < n; i++) {
-                    if (bbe.maze[j][i] != -1 && dentroLaberinto(i, j)) {
+                    if (bbe.maze[j][i] != -1 && dentroLaberinto(j, i)) {
                         if (bbe.isGoal(j, i)) {
                             utilityPrime = bbe.getReward(j, i);
-                            double abs = Math.abs(utilities.get(new Estado(j, i)) - utilityPrime);
+                            double abs = Math.abs(utilityPrime - utilities.get(new Estado(j, i)));
                             if (abs > delta) {
                                 delta = abs;
                             }
@@ -62,6 +70,7 @@ public class ValueIteration {
                     }
                 }
             }
+            System.out.println("Delta: " + delta);
         } while (!(delta < epsilon));
 
         return utilities;
@@ -77,29 +86,50 @@ public class ValueIteration {
     }
 
     public double getSum(int j, int i) {
-        double sum = 0;
+        String accion = "";
+        int aleatorio;
+        double max = Double.MIN_VALUE;
+        double utilidadAbajo, utilidadArriba, utilidadDerecha, utilidadIzquierda, utilidad;
         //abajo
-        int nAcciones = 0;
         if (dentroLaberinto(j + 1, i) && bbe.maze[j + 1][i] != -1) {
-            sum += utilities.get(new Estado(j + 1, i));
-            nAcciones++;
+            utilidadAbajo = utilities.get(new Estado(j + 1, i));
+        } else {
+            utilidadAbajo = utilities.get(new Estado(j, i));
         }
         //arriba
         if (dentroLaberinto(j - 1, i) && bbe.maze[j - 1][i] != -1) {
-            sum += utilities.get(new Estado(j - 1, i));
-            nAcciones++;
+            utilidadArriba = utilities.get(new Estado(j - 1, i));
+        } else {
+            utilidadArriba = utilities.get(new Estado(j, i));
         }
         //derecha
         if (dentroLaberinto(j, i + 1) && bbe.maze[j][i + 1] != -1) {
-            sum += utilities.get(new Estado(j, i + 1));
-            nAcciones++;
+            utilidadDerecha = utilities.get(new Estado(j, i + 1));
+        } else {
+            utilidadDerecha = utilities.get(new Estado(j, i));
         }
         //izquierda
         if (dentroLaberinto(j, i - 1) && bbe.maze[j][i - 1] != -1) {
-            sum += utilities.get(new Estado(j, i - 1));
-            nAcciones++;
+            utilidadIzquierda = utilities.get(new Estado(j, i - 1));
+        } else {
+            utilidadIzquierda = utilities.get(new Estado(j, i));
         }
-        return sum;
+
+        max = utilidadArriba * prob + utilidadAbajo * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
+
+        utilidad = utilidadAbajo * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
+        if (utilidad > max) {
+            max = utilidad;
+        }
+        utilidad = utilidadIzquierda * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadAbajo * (1.0 - prob) / 3;
+        if (utilidad > max) {
+            max = utilidad;
+        }
+        utilidad = utilidadDerecha * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3 + utilidadAbajo * (1.0 - prob) / 3;
+        if (utilidad > max) {
+            max = utilidad;
+        }
+        return max;
     }
 
 }

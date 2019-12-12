@@ -78,7 +78,7 @@ public class practica2 {
     }
 
     public static void main(String[] args) {
-        int t = 5;
+        int t = 10;
         double prob = 0.9;
         BlackBoxEnvironment bbe = new BlackBoxEnvironment(t, 2019, prob);
         QLearning ql = new QLearning(bbe, 2019);
@@ -91,10 +91,10 @@ public class practica2 {
         bbe.printMaze();
         //imprimirPolitica(map, t);
         //System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map));
-        ValueIteration vi = new ValueIteration(t, 2019, 0.001);
+        ValueIteration vi = new ValueIteration(t, 2019, 0.001,0.7);
         HashMap<Estado, Double> utilities = vi.algoritmo();
         utilities.keySet().stream().map((key) -> utilities.get(key)).forEachOrdered((value) -> {
-            System.out.println("Delta = " + value);
+            System.out.println("Utilidad = " + value);
         });
     }
 }
