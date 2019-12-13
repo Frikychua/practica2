@@ -52,7 +52,7 @@ public class practica2 {
         System.out.println("-");
     }
 
-    public static double calcularUtilidadMedia(Random r, BlackBoxEnvironment BB, HashMap<Estado, String> map) {
+    public static double calcularUtilidadMedia(Random r, BlackBoxEnvironment BB, HashMap<Estado, String> map,int nIteraciones) {
         double utilidad = 0.0;
         int nmovimientos = 0;
         int row = 0;
@@ -73,28 +73,36 @@ public class practica2 {
             row = 0;
             column = BB.getInitialCarColumn();
         }
-        System.out.println(nmovimientos / 10000.0);
-        return utilidad / 10000;
+        System.out.println(nmovimientos / (double) nIteraciones);
+        return utilidad / (double) nIteraciones;
     }
+    
+
 
     public static void main(String[] args) {
         int t = 10;
-        double prob = 0.9;
+        double prob = 0.7;
+        int nepisodios = 10000;
+        int nIteraciones = 10000;
         BlackBoxEnvironment bbe = new BlackBoxEnvironment(t, 2019, prob);
-        QLearning ql = new QLearning(bbe, 2019);
-        //HashMap<Estado, String> map = ql.algoritmo();
+        QLearning ql = new QLearning(bbe, 2019,nepisodios);
+        HashMap<Estado, String> map = ql.algoritmo();
 
 //        for (Estado key : map.keySet()) {
 //            String value = map.get(key);
 //            System.out.println("Value = " + value);
 //        }
         bbe.printMaze();
-        //imprimirPolitica(map, t);
-        //System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map));
+        imprimirPolitica(map, t);
+        System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map,nIteraciones));
         ValueIteration vi = new ValueIteration(t, 2019, 0.001,0.7);
+        
         HashMap<Estado, Double> utilities = vi.algoritmo();
-        utilities.keySet().stream().map((key) -> utilities.get(key)).forEachOrdered((value) -> {
-            System.out.println("Utilidad = " + value);
-        });
+        HashMap<Estado, String> politicaIter= vi.policy;
+        System.out.println(calcularUtilidadMedia(new Random(2019), bbe, politicaIter,nIteraciones));
+        
+//        utilities.keySet().stream().map((key) -> utilities.get(key)).forEachOrdered((value) -> {
+//            System.out.println("Utilidad = " + value);
+//        });
     }
 }

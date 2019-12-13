@@ -16,20 +16,21 @@ import java.util.Random;
 public class QLearning {
 
     HashMap<Estado, String> policy = new HashMap<Estado, String>();
-    HashMap<Estado, Double> utilities = new HashMap<Estado, Double>();
     HashMap<Estado, double[]> QTable = new HashMap<Estado, double[]>();
     BlackBoxEnvironment BB;
     Random r;
-    int nEpisodios = 1000000;
+    int nEpisodios;
     final double alfa = 0.1;
     final double vInicio = -1.0;
 
-    public QLearning(BlackBoxEnvironment b,int seed) {
+    public QLearning(BlackBoxEnvironment b,int seed,int nepisodios) {
         this.BB = b;
         r = new Random(seed);
+        this.nEpisodios = nepisodios;
     }
 
     public HashMap<Estado, String> algoritmo() {
+        long startTime = System.nanoTime();
         for (int i = 0; i < nEpisodios; i++) {
         int row = 0;
         int column = BB.getInitialCarColumn();
@@ -76,6 +77,8 @@ public class QLearning {
                 policy.put(key, BB.getActions()[getMax(QTable.get(key))]);
             });
         }
+        long endTime = System.nanoTime();
+        System.out.println("Duración: " + (endTime-startTime)/1e6 + " ms");
         return policy;
     }
 

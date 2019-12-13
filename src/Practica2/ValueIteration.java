@@ -15,6 +15,8 @@ import java.util.Random;
 public class ValueIteration {
 
     HashMap<Estado, Double> utilities = new HashMap<Estado, Double>();
+    HashMap<Estado, Double> utilitiesAux = new HashMap<Estado, Double>();
+    HashMap<Estado, String> policy = new HashMap<Estado, String>();
     BlackBoxEnvironment bbe;
     int n;
     int seed;
@@ -34,7 +36,7 @@ public class ValueIteration {
         double delta;
         double utilityPrime;
         bbe = new BlackBoxEnvironment(n, seed, 1);
-
+        //Se inicializan todas las utilidades a 0
         for (int j = 0; j < n; j++) {
             for (int i = 0; i < n; i++) {
                 if (bbe.maze[j][i] != -1) {
@@ -47,6 +49,7 @@ public class ValueIteration {
             }
         }
         do {
+            //Se inicializa Delta a 0
             delta = 0;
 
             for (int j = 0; j < n; j++) {
@@ -54,27 +57,29 @@ public class ValueIteration {
                     if (bbe.maze[j][i] != -1 && dentroLaberinto(j, i)) {
                         if (bbe.isGoal(j, i)) {
                             utilityPrime = bbe.getReward(j, i);
-                            double abs = Math.abs(utilityPrime - utilities.get(new Estado(j, i)));
+                            double abs = Math.abs(utilities.get(new Estado(j, i)) - utilityPrime);
                             if (abs > delta) {
-                                delta = abs;
+                                  delta = abs;
                             }
-                            utilities.put(new Estado(j, i), utilityPrime);
+                            utilitiesAux.put(new Estado(j, i), utilityPrime);
                         } else {
                             utilityPrime = bbe.getReward(j, i) + getSum(j, i);
                             double abs = Math.abs(utilities.get(new Estado(j, i)) - utilityPrime);
                             if (abs > delta) {
                                 delta = abs;
                             }
-                            utilities.put(new Estado(j, i), utilityPrime);
+                            utilitiesAux.put(new Estado(j, i), utilityPrime);
                         }
                     }
                 }
             }
+            utilities.putAll(utilitiesAux);
             System.out.println("Delta: " + delta);
         } while (!(delta < epsilon));
 
         return utilities;
     }
+    
 
     public boolean dentroLaberinto(int j, int i) {
         if (i >= 0 && i < n) {
@@ -116,19 +121,23 @@ public class ValueIteration {
         }
 
         max = utilidadArriba * prob + utilidadAbajo * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
-
+        accion = "UP";
         utilidad = utilidadAbajo * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
         if (utilidad > max) {
             max = utilidad;
+            accion = "DOWN";
         }
         utilidad = utilidadIzquierda * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadAbajo * (1.0 - prob) / 3;
         if (utilidad > max) {
             max = utilidad;
+            accion = "LEFT";
         }
         utilidad = utilidadDerecha * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3 + utilidadAbajo * (1.0 - prob) / 3;
         if (utilidad > max) {
             max = utilidad;
+            accion = "RIGHT";
         }
+        policy.put(new Estado(j,i), accion);
         return max;
     }
 
