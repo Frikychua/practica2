@@ -23,7 +23,7 @@ public class ValueIteration {
     double epsilon;
     double prob;
     Random r;
-
+    //Inicializamos los valores necesarios
     public ValueIteration(int n, int seed, double epsilon, double prob) {
         this.n = n;
         this.seed = seed;
@@ -33,6 +33,7 @@ public class ValueIteration {
     }
 
     public HashMap<Estado, Double> algoritmo() {
+        long startTime = System.nanoTime();
         double delta;
         double utilityPrime;
         bbe = new BlackBoxEnvironment(n, seed, 1);
@@ -58,10 +59,6 @@ public class ValueIteration {
                         if (bbe.isGoal(j, i)) {
                             utilityPrime = bbe.getReward(j, i);
                             double abs = Math.abs(utilities.get(new Estado(j, i)) - utilityPrime);
-                            if (abs > delta) {
-                                  delta = abs;
-                            }
-                            utilitiesAux.put(new Estado(j, i), utilityPrime);
                         } else {
                             utilityPrime = bbe.getReward(j, i) + getSum(j, i);
                             double abs = Math.abs(utilities.get(new Estado(j, i)) - utilityPrime);
@@ -76,12 +73,13 @@ public class ValueIteration {
             utilities.putAll(utilitiesAux);
             System.out.println("Delta: " + delta);
         } while (!(delta < epsilon));
-
+        long endTime = System.nanoTime();
+        System.out.println("Duración: " + (endTime - startTime) / 1e6 + " ms");
         return utilities;
     }
-    
 
     public boolean dentroLaberinto(int j, int i) {
+        //Comprobamos que esa posición se encuentra dentro del laberinto
         if (i >= 0 && i < n) {
             if (j >= 0 && j < n) {
                 return true;
@@ -95,6 +93,8 @@ public class ValueIteration {
         int aleatorio;
         double max = Double.MIN_VALUE;
         double utilidadAbajo, utilidadArriba, utilidadDerecha, utilidadIzquierda, utilidad;
+        //Calculamos la utilidad para cada uno de los movimientos posibles
+        
         //abajo
         if (dentroLaberinto(j + 1, i) && bbe.maze[j + 1][i] != -1) {
             utilidadAbajo = utilities.get(new Estado(j + 1, i));
@@ -119,13 +119,17 @@ public class ValueIteration {
         } else {
             utilidadIzquierda = utilities.get(new Estado(j, i));
         }
-
-        max = utilidadArriba * prob + utilidadAbajo * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
-        accion = "UP";
-        utilidad = utilidadAbajo * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
+        
+        //Seleccionamos el movimiento con mayor utilidad y aplicamos el modelo de transición
+        
+        //Asignamos como primera utilidad a comprobar ir hacia abajo y alguna tiene utilidad mayor escogeremos esa
+        max = utilidadAbajo * prob + utilidadArriba* (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
+        accion = "DOWN";
+        
+        utilidad = utilidadArriba * prob + utilidadAbajo * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadIzquierda * (1.0 - prob) / 3;
         if (utilidad > max) {
             max = utilidad;
-            accion = "DOWN";
+            accion = "UP";
         }
         utilidad = utilidadIzquierda * prob + utilidadArriba * (1.0 - prob) / 3 + utilidadDerecha * (1.0 - prob) / 3 + utilidadAbajo * (1.0 - prob) / 3;
         if (utilidad > max) {
@@ -137,7 +141,9 @@ public class ValueIteration {
             max = utilidad;
             accion = "RIGHT";
         }
-        policy.put(new Estado(j,i), accion);
+        
+        //Creamos la política escogiendo el movimiento con mayor utilidad y la colocamos en el HashMap
+        policy.put(new Estado(j, i), accion);
         return max;
     }
 

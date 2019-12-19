@@ -84,7 +84,7 @@ public class practica2 {
         double prob = 0.7;
         int nepisodios = 10000;
         int nIteraciones = 10000;
-        BlackBoxEnvironment bbe = new BlackBoxEnvironment(t, 2019, prob);
+        BlackBoxEnvironment bbe = new BlackBoxEnvironment(t, 2018, prob);
         QLearning ql = new QLearning(bbe, 2019,nepisodios);
         HashMap<Estado, String> map = ql.algoritmo();
 
@@ -95,7 +95,7 @@ public class practica2 {
         bbe.printMaze();
         imprimirPolitica(map, t);
         System.out.println(calcularUtilidadMedia(new Random(2019), bbe, map,nIteraciones));
-        ValueIteration vi = new ValueIteration(t, 2019, 0.001,0.7);
+        ValueIteration vi = new ValueIteration(t, 2019, 0.00001,0.7);
         
         HashMap<Estado, Double> utilities = vi.algoritmo();
         HashMap<Estado, String> politicaIter= vi.policy;
